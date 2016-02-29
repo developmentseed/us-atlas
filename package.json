@@ -16,7 +16,7 @@
     "url": "http://github.com/mbostock/us-atlas.git"
   },
   "devDependencies": {
-    "shapefile": "0.1",
+    "geojson-stream": "0.0.1",
     "topojson": ">=1.6.2 <2"
   },
   "optionalDependencies": {
@@ -24,6 +24,7 @@
     "d3": "3"
   },
   "dependencies": {
+    "geojson-stream": "0.0.1",
     "geojson-xyz": "^3.0.0",
     "get-stdin": "^5.0.1",
     "turf-area": "^1.1.1",

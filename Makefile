@@ -736,7 +736,7 @@ png/%.png: shp/%.shp bin/rasterize
 
 topo/us-congress-10m-ungrouped.json: shp/us/congress-ungrouped.shp
 	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -746,7 +746,7 @@ topo/us-congress-10m-ungrouped.json: shp/us/congress-ungrouped.shp
 
 topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -757,13 +757,13 @@ topo/us-counties-10m-ungrouped.json: shp/us/counties.shp
 
 # Group polygons into multipolygons.
 topo/us-%-10m.json: topo/us-%-10m-ungrouped.json
-	node_modules/.bin/topojson-group \
+	bin/topojson-group \
 		-o $@ \
 		-- topo/us-$*-10m-ungrouped.json
 
 # Merge counties into states.
 topo/us-states-10m.json: topo/us-counties-10m.json
-	node_modules/.bin/topojson-merge \
+	bin/topojson-merge \
 		-o $@ \
 		--in-object=counties \
 		--out-object=states \
@@ -772,7 +772,7 @@ topo/us-states-10m.json: topo/us-counties-10m.json
 
 # Merge states into the nation (land).
 topo/us-10m.json: topo/us-states-10m.json
-	node_modules/.bin/topojson-merge \
+	bin/topojson-merge \
 		-o $@ \
 		--in-object=states \
 		--out-object=land \
@@ -790,7 +790,7 @@ all-pop-blocks:
 
 # National combined (states)
 topo/us-combined.json: geojson/states.geojson
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o temp.json \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -799,7 +799,7 @@ topo/us-combined.json: geojson/states.geojson
 		--properties STATE_FIPS,postal \
 		--external-properties fips.csv \
 		-- $^
-	node_modules/.bin/topojson \
+	bin/topojson \
 	  -o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -810,7 +810,7 @@ topo/us-combined.json: geojson/states.geojson
 
 # Per-state combined (counties, insets, cities)
 topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/districts.geojson geojson/%/counties.geojson geojson/%/counties-insets.geojson topo/us-%-cities.json
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -820,7 +820,7 @@ topo/us-%-combined.json: geojson/%/subunits.geojson geojson/%/districts.geojson 
 # Per-state ounties and county insets
 topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -832,7 +832,7 @@ topo/us-%-counties-10m-ungrouped.json: shp/%/counties.shp
 geojson/%/counties.geojson: topo/us-%-counties-10m.json
 	mkdir -p $(dir $@)
 	rm -f $@
-	topojson-geojson -o $(dir $@) $<
+	bin/topojson-geojson -o $(dir $@) $<
 	cat $(dir $@)/counties.json | ./clip-at-dateline > $@
 	rm $(dir $@)/counties.json
 
@@ -853,7 +853,7 @@ geojson/states-insets.geojson: geojson/states.geojson
 # Cities
 topo/us-%-cities.json: geojson/%/cities.geojson
 	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -869,7 +869,7 @@ geojson/%/cities.geojson:
 # Census blocks
 topo/us-%-pop-blocks.json: shp/%/pop_blocks.shp
 	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -880,7 +880,7 @@ topo/us-%-pop-blocks.json: shp/%/pop_blocks.shp
 
 geojson/us-%-pop-blocks.geojson: topo/us-%-pop-blocks.json
 	mkdir -p $(basename $@)
-	node_modules/.bin/topojson-geojson -o $(basename $@) \
+	bin/topojson-geojson -o $(basename $@) \
 		--id-property=BLOCKID10 \
 		$<
 	cp $(basename $@)/pop_blocks.json $@
@@ -889,7 +889,7 @@ geojson/us-%-pop-blocks.geojson: topo/us-%-pop-blocks.json
 # State legislative district lower
 topo/us-%-sldl.json: shp/%/sldl.shp
 	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -899,7 +899,7 @@ topo/us-%-sldl.json: shp/%/sldl.shp
 		-- $<
 
 geojson/%/sldl.geojson: topo/us-%-sldl.json
-	node_modules/.bin/topojson-geojson -o $(dir $@) \
+	bin/topojson-geojson -o $(dir $@) \
 		--properties NAMELSAD \
 		$<
 		cat $(dir $@)sldl.json | ./clip-at-dateline > $@
@@ -923,7 +923,7 @@ shp/%/congress-clipped.shp: shp/%/congress-ungrouped.shp shp/%/states.shp
 
 topo/us-%-congress.json: shp/%/congress-clipped.shp
 	mkdir -p $(dir $@)
-	node_modules/.bin/topojson \
+	bin/topojson \
 		-o $@ \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
@@ -939,7 +939,7 @@ geojson/%/districts.geojson:
 # MN
 geojson/mn/districts.geojson: topo/us-mn-congress.json
 	mkdir -p $(dir $@)
-	topojson-geojson -o $(dir $@) $<
+	bin/topojson-geojson -o $(dir $@) $<
 	mv $(dir $@)congress-clipped.json $(dir $@)districts.geojson
 
 shp/mn/congress-ungrouped.shp: shp/us/congress-ungrouped.shp
