@@ -67,6 +67,10 @@ if (files.length > 1) {
   doResultsFile(files[0], function () {})
 }
 
+function isState (ru) {
+  return ru.level === 'state' || ru.level === 'at-large'
+}
+
 var statesWritten = []
 function doResultsFile (file, done) {
   fs.createReadStream(file)
@@ -83,7 +87,11 @@ function doResultsFile (file, done) {
         if (districtNumber.length === 1) { districtNumber = '0' + districtNumber }
         ru.districtId = states[ru.statePostal].fipsCode + '' + districtNumber
       }
-
+      if (isState(ru)) {
+        // normalize state; some say `at-large`
+        ru.level = 'state'
+        ru.fipsCode = states[statePostal].fipsCode
+      }
       processReportingUnit(ru)
     })
   })
