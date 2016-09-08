@@ -953,7 +953,7 @@ geojson/us-10m: geojson/counties.geojson geojson/districts.geojson geojson/state
 		-o temp.json \
 		--no-pre-quantization \
 		--post-quantization=1e6 \
-		--simplify=7e-6 \
+		--simplify=7e-7 \
 		--properties GEOID,STATE_FIPS,FIPS\
 		--external-properties fips.csv \
 		-- $^
