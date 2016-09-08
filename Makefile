@@ -984,16 +984,9 @@ geojson/albers/%.geojson: geojson/%.geojson
 		| ./geojson-id id \
 		> $@
 
-geojson/albers/us-10m/counties.geojson: geojson/counties.geojson
-	mkdir -p $(dir $@)
-	cat $^ \
-		| ./reproject-geojson \
-		| ./normalize-properties GEOID:id STATE_FIPS:id FIPS:id  \
-		| ./geojson-id id \
-		> $@
-
-geojson/albers/state-bounds.json: geojson/albers/states.geojson
-	cat $^ | ./extract-projected-bounds > $@
+# Separate asset needed by wapo-components
+geojson/albers/bounds.json: geojson/albers/us-10m
+	cat $^/*.geojson | ./extract-projected-bounds > $@
 
 geojson/albers/state-labels-dataset.geojson:
 	curl "https://api.mapbox.com/datasets/v1/devseed/cis7wq7mj04l92zpk9tbk9wgo/features?access_token=$(MapboxAccessToken)" > $@
@@ -1034,9 +1027,7 @@ geojson/albers/state-label-callouts.geojson: geojson/albers/state-labels-dataset
 		| ./geojson-id id \
 		> $@
 
-tiles/z0-4.mbtiles: geojson/albers/us-10m/states.geojson \
-	geojson/albers/us-10m/counties.geojson \
-	geojson/albers/us-10m/districts.geojson \
+tiles/z0-4.mbtiles: geojson/albers/us-10m \
 	geojson/albers/state-labels.geojson \
 	geojson/albers/state-label-callouts.geojson
 	mkdir -p $(dir $@)
