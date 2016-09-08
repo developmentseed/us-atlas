@@ -35,6 +35,7 @@
     "minimist": "^1.2.0",
     "reproject": "^1.1.1",
     "through2": "^2.0.1",
+    "tile-index": "^1.0.0",
     "turf-area": "^1.1.1",
     "turf-bbox-clip": "turfjs/turf-bbox-clip",
     "turf-buffer": "^1.1.0",

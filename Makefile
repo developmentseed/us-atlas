@@ -985,8 +985,12 @@ geojson/albers/%.geojson: geojson/%.geojson
 		> $@
 
 # Separate asset needed by wapo-components
-geojson/albers/bounds.json: geojson/albers/us-10m
-	cat $^/*.geojson | ./extract-projected-bounds > $@
+geojson/albers/state-bounds.json: geojson/albers/states.geojson
+	cat $^ | ./extract-projected-bounds > $@
+
+# Separate asset needed by wapo-components
+geojson/albers/tile-index.json: geojson/albers/us-10m
+	cat $^/*.geojson | ./reproject-geojson --projection mercator --reverse | node_modules/.bin/tile-index -z 7 -f indexed > $@
 
 geojson/albers/state-labels-dataset.geojson:
 	curl "https://api.mapbox.com/datasets/v1/devseed/cis7wq7mj04l92zpk9tbk9wgo/features?access_token=$(MapboxAccessToken)" > $@
