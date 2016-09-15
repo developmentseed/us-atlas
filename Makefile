@@ -1031,6 +1031,28 @@ geojson/albers/state-label-callouts.geojson: geojson/albers/state-labels-dataset
 		| ./geojson-id id \
 		> $@
 
+geojson/albers/city-labels.geojson:
+	cat data/us-cities.geojson \
+		| ./reproject-geojson \
+		| ./normalize-properties \
+				adm1name:state state:state \
+				pop_max:pop pop:pop \
+				visible:visible \
+				align:align \
+				name:name \
+		> $@
+
+tiles/wapo-2016-election-city-labels.mbtiles: geojson/albers/city-labels.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		-f \
+		--named-layer=city-labels:geojson/albers/city-labels.geojson \
+		--read-parallel \
+		--no-polygon-splitting \
+		--drop-rate=0 \
+		--name=2016-us-election-cities \
+		--output $@
+
 tiles/z0-4.mbtiles: geojson/albers/us-10m \
 	geojson/albers/state-labels.geojson \
 	geojson/albers/state-label-callouts.geojson
