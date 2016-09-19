@@ -1038,6 +1038,7 @@ geojson/albers/city-labels.geojson:
 							map(. | select(.geometry.type == "Point" and .properties.visible == 1)) \
 					}' \
 		| ./reproject-geojson \
+		| ./capitalize-property name \
 		| ./normalize-properties \
 				adm1name:state state:state \
 				pop_max:pop pop:pop \
