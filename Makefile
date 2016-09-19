@@ -1033,11 +1033,16 @@ geojson/albers/state-label-callouts.geojson: geojson/albers/state-labels-dataset
 
 geojson/albers/city-labels.geojson:
 	cat data/us-cities.geojson \
+		| jq '{ type: "FeatureCollection", \
+					  features: .features | \
+							map(. | select(.geometry.type == "Point" and .properties.visible == 1)) \
+					}' \
 		| ./reproject-geojson \
 		| ./normalize-properties \
 				adm1name:state state:state \
 				pop_max:pop pop:pop \
 				visible:visible \
+				national:national \
 				align:align \
 				name:name \
 		> $@
