@@ -1041,7 +1041,6 @@ geojson/albers/city-labels.geojson:
 		| ./capitalize-property name \
 		| ./normalize-properties \
 				adm1name:state state:state \
-				pop_max:pop pop:pop \
 				visible:visible \
 				national:national \
 				align:align \
