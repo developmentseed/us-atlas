@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+
+var geojsonStream = require('geojson-stream')
+var through = require('through2')
+var polylabel = require('polylabel')
+var turf = require('turf')
+
+process.stdin.pipe(geojsonStream.parse())
+.pipe(through.obj(write))
+.pipe(geojsonStream.stringify())
+.pipe(process.stdout)
+
+function write (feat, _, next) {
+  if (feat.geometry.coordinates.length) {
+    var center
+    if (feat.geometry.type === 'Polygon') {
+      center = polylabel(feat.geometry.coordinates, 1.0)
+    } else if (feat.geometry.type === 'MultiPolygon') {
+
+      // first, try to combine the multi-polygon into a polygon
+      var combined = turf.polygon(feat.geometry.coordinates[0])
+      feat.geometry.coordinates.slice(1).forEach(function (coord) {
+        combined = turf.union(combined, turf.polygon(coord))
+      })
+
+      // it's non-contiguous, use turf
+      if (combined.geometry.type === 'MultiPolygon') {
+        center = turf.centroid(combined).geometry.coordinates
+      } else {
+        center = polylabel(combined.geometry.coordinates, 1.0)
+      }
+    }
+    this.push({
+      type: 'Feature',
+      id: feat.id,
+      properties: { id: feat.id },
+      geometry: {
+        'type': 'Point',
+        'coordinates': center
+      }
+    })
+  }
+  next()
+}

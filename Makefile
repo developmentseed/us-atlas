@@ -992,6 +992,9 @@ geojson/albers/state-bounds.json: geojson/albers/states.geojson
 geojson/albers/tile-index.json: geojson/albers/us-10m
 	cat $^/*.geojson | ./reproject-geojson --projection mercator --reverse | node_modules/.bin/tile-index -z 7 -f indexed > $@
 
+geojson/albers/centroid-%: geojson/albers/%
+	cat $^ | ./centroids > $@
+
 geojson/albers/state-labels-dataset.geojson:
 	curl "https://api.mapbox.com/datasets/v1/devseed/cis7wq7mj04l92zpk9tbk9wgo/features?access_token=$(MapboxAccessToken)" > $@
 
@@ -1041,6 +1044,21 @@ geojson/albers/city-labels.geojson:
 				align:align \
 				name:name \
 		> $@
+
+tiles/wapo-2016-election-centroids.mbtiles: geojson/albers/centroid-states.geojson \
+	geojson/albers/centroid-counties.geojson \
+	geojson/albers/centroid-districts.geojson
+	mkdir -p $(dir $@)
+	tippecanoe --projection EPSG:3857 \
+		-f \
+		--named-layer=states:geojson/albers/centroid-states.geojson \
+		--named-layer=counties:geojson/albers/centroid-counties.geojson \
+		--named-layer=districts:geojson/albers/centroid-districts.geojson \
+		--read-parallel \
+		--no-polygon-splitting \
+		--drop-rate=0 \
+		--name=2016-us-election-centroids \
+		--output $@
 
 tiles/wapo-2016-election-city-labels.mbtiles: geojson/albers/city-labels.geojson
 	mkdir -p $(dir $@)
