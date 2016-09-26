@@ -1051,9 +1051,9 @@ tiles/wapo-2016-election-centroids.mbtiles: geojson/albers/centroid-states.geojs
 	mkdir -p $(dir $@)
 	tippecanoe --projection EPSG:3857 \
 		-f \
-		--named-layer=states:geojson/albers/centroid-states.geojson \
-		--named-layer=counties:geojson/albers/centroid-counties.geojson \
-		--named-layer=districts:geojson/albers/centroid-districts.geojson \
+		--named-layer=states-centroids:geojson/albers/centroid-states.geojson \
+		--named-layer=counties-centroids:geojson/albers/centroid-counties.geojson \
+		--named-layer=districts-centroids:geojson/albers/centroid-districts.geojson \
 		--read-parallel \
 		--no-polygon-splitting \
 		--drop-rate=0 \

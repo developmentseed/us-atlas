@@ -23,9 +23,12 @@ function write (feat, _, next) {
         combined = turf.union(combined, turf.polygon(coord))
       })
 
-      // it's non-contiguous, use turf
+      // it's still non-contiguous, use polylabel on the largest polygon
       if (combined.geometry.type === 'MultiPolygon') {
-        center = turf.centroid(combined).geometry.coordinates
+        let sorted = combined.geometry.coordinates.sort((a, b) => {
+          return turf.area(turf.polygon(a)) > turf.area(turf.polygon(b)) ? -1 : 1
+        })
+        center = polylabel(sorted[0], 1.0)
       } else {
         center = polylabel(combined.geometry.coordinates, 1.0)
       }
